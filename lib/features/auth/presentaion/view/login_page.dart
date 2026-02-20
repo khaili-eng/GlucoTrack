@@ -1,0 +1,137 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
+import 'package:untitled10/core/network/api_service.dart';
+import 'package:untitled10/features/auth/domain/usecase/forgot_password_usecase.dart';
+import 'package:untitled10/features/auth/domain/usecase/login_usecase.dart';
+import 'package:untitled10/features/auth/domain/usecase/reset_password_usecase.dart';
+import 'package:untitled10/features/auth/domain/usecase/verify_usecase.dart';
+import 'package:untitled10/features/auth/repo/auth_repo.dart';
+import 'package:untitled10/features/auth/repo/auth_repo_impl.dart';
+
+import '../../../../core/color/app_color.dart';
+
+import '../../../../core/localization/locale_cubit.dart';
+import '../../../../core/routes/app_routes.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_feild.dart';
+import '../../../../core/widgets/language_bottom_sheet.dart';
+import '../manager/auth_cubit.dart';
+import '../manager/auth_state.dart';
+
+class LoginPage extends StatelessWidget {
+  LoginPage({super.key});
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
+        backgroundColor: AppColor.backgroundNeutral,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Positioned(
+                top: 8.h,
+                left: 8.w,
+                child: InkWell(
+                  onTap: () {
+                    showLanguageBottomSheet(context);
+                  },
+                  child: Icon(Icons.language, color: AppColor.info),
+                ),
+              ),
+              Center(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Lottie.asset(
+                          'assets/lottie/Welcome Animation.json',
+                          height: 300.h,
+                        ),
+                        SizedBox(height: 20.h),
+                        Text(
+                          context.read<LocaleCubit>().translate('welcome_back'),
+                          style: TextStyle(
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppColor.info,
+                          ),
+                        ),
+                        SizedBox(height: 32.h),
+                        AppTextField(
+                          controller: emailController,
+                          label: context.read<LocaleCubit>().translate('email'),
+                          icon: Icons.email,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return context.read<LocaleCubit>().translate('email_required');
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 16.h),
+                        AppTextField(
+                          controller: passwordController,
+                          label: context.read<LocaleCubit>().translate('password'),
+                          icon: Icons.lock,
+                          obscure: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return context.read<LocaleCubit>().translate('password_required');
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 24.h),
+                        BlocConsumer<AuthCubit, AuthState>(
+                          listener: (context, state) {
+                            if (state is AuthSuccess) {
+                              Navigator.pushReplacementNamed(context, AppRoutes.home);
+                            }
+                            if (state is AuthError) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(state.failure.message),
+                                  backgroundColor: AppColor.negative,
+                                ),
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state is AuthLoading) {
+                              return const CircularProgressIndicator();
+                            }
+                            return AppButton(
+                              text: context.read<LocaleCubit>().translate('login'),
+                              icon: Icons.login,
+                              iconColor: AppColor.info,
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  context.read<AuthCubit>().login(
+                                    email: emailController.text.trim(),
+                                    password: passwordController.text.trim(),
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+    );
+  }
+}
