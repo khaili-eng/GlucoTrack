@@ -6,15 +6,13 @@ import '../entity/conversation_entity.dart';
 
 
 class GetConversationUseCase
-    extends BaseUseCase<ConversationEntity, String> {
+    extends BaseUseCase<ConversationEntity, int> {
   final BotRepository repository;
 
   GetConversationUseCase(this.repository);
 
   @override
-  Future<Either<Failure, ConversationEntity>> call(
-      String params,
-      ) {
-    return repository.getConversation(params);
+  Future<Either<Failure, ConversationEntity>> call(int id) {
+    return repository.getConversation(id);
   }
 }

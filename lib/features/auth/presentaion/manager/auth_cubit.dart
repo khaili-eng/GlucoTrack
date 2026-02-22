@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/utils/either.dart';
 import '../../domain/usecase/forgot_password_usecase.dart';
 import '../../domain/usecase/login_usecase.dart';
 import '../../domain/usecase/reset_password_usecase.dart';
@@ -20,14 +19,12 @@ class AuthCubit extends Cubit<AuthState> {
     required this.resetPasswordUseCase,
   }) : super(const AuthInitial());
 
-  Future<void> login({required String email , required String password}) async {
+  Future<void> login({required String email, required String password}) async {
     emit(const AuthLoading());
-    final result = await loginUseCase(
-      LoginParams(email: email, password: password),
-    );
+    final result = await loginUseCase(LoginParams(email: email, password: password));
     result.fold(
-          (failure) => emit(AuthError(failure)),
-          (data) => emit(AuthSuccess(data)),
+      (failure) => emit(AuthError(failure)),
+      (authEntity) => emit(AuthSuccess(authEntity)),
     );
   }
 
@@ -35,29 +32,26 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthLoading());
     final result = await forgotPasswordUseCase(email);
     result.fold(
-          (failure) => emit(AuthError(failure)),
-          (data) => emit(AuthSuccess(data)),
+      (failure) => emit(AuthError(failure)),
+      (message) => emit(AuthSuccess(message)),
     );
   }
 
   Future<void> verifyOtp(String email, String otp) async {
     emit(const AuthLoading());
-    final result =
-    await verifyOtpUseCase(VerifyOtpParams(email: email, otp: otp));
+    final result = await verifyOtpUseCase(VerifyOtpParams(email: email, otp: otp));
     result.fold(
-          (failure) => emit(AuthError(failure)),
-          (data) => emit(AuthSuccess(data)),
+      (failure) => emit(AuthError(failure)),
+      (message) => emit(AuthSuccess(message)),
     );
   }
 
   Future<void> resetPassword(String email, String password) async {
     emit(const AuthLoading());
-    final result = await resetPasswordUseCase(
-      ResetPasswordParams(email: email, newPassword: password),
-    );
+    final result = await resetPasswordUseCase(ResetPasswordParams(email: email, newPassword: password));
     result.fold(
-          (failure) => emit(AuthError(failure)),
-          (data) => emit(AuthSuccess(data)),
+      (failure) => emit(AuthError(failure)),
+      (message) => emit(AuthSuccess(message)),
     );
   }
 }

@@ -14,7 +14,7 @@ import '../manager/auth_state.dart';
 class OtpPage extends StatefulWidget {
 final String? email;
 
-  OtpPage({this.email});
+  const OtpPage({super.key, this.email});
 
   @override
   State<OtpPage> createState() => _OtpPageState();

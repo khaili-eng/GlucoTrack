@@ -7,7 +7,7 @@ class OtpBox extends StatelessWidget {
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
 
-  const OtpBox({
+  const OtpBox({super.key, 
     required this.controller,
     this.autoFocus = false,
     this.onChanged,

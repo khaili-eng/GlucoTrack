@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:untitled10/features/chat/domain/entity/message_entity.dart';
 import '../../domain/usecase/create_conversation_usecase.dart';
 import '../../domain/usecase/delete_conversation_usecase.dart';
 import '../../domain/usecase/get_allconversation_usecase.dart';
@@ -29,17 +30,17 @@ class BotCubit extends Cubit<BotState> {
     emit(const BotLoading());
     final result = await createConversationUseCase(userId);
     result.fold(
-          (failure) => emit(BotError(failure)),
-          (data) => emit(BotSuccess(data)),
+      (failure) => emit(BotError(failure)),
+      (data) => emit(BotSuccess(data)),
     );
   }
 
-  Future<void> getConversation(int id) async {
+  Future<void> getConversation(int conversationId) async {
     emit(const BotLoading());
-    final result = await getConversationUseCase(id);
+    final result = await getConversationUseCase(conversationId);
     result.fold(
-          (failure) => emit(BotError(failure)),
-          (data) => emit(BotSuccess(data)),
+      (failure) => emit(BotError(failure)),
+      (data) => emit(BotSuccess(data)),
     );
   }
 
@@ -47,26 +48,26 @@ class BotCubit extends Cubit<BotState> {
     emit(const BotLoading());
     final result = await getAllConversationsUseCase(userId);
     result.fold(
-          (failure) => emit(BotError(failure)),
-          (data) => emit(BotListSuccess(data)),
+      (failure) => emit(BotError(failure)),
+      (data) => emit(BotListSuccess(data)),
     );
   }
 
-  Future<void> deleteConversation(int id) async {
+  Future<void> deleteConversation(int conversationId) async {
     emit(const BotLoading());
-    final result = await deleteConversationUseCase(id);
+    final result = await deleteConversationUseCase(DeleteConversationParams(conversationId));
     result.fold(
-          (failure) => emit(BotError(failure)),
-          (data) => emit(BotSuccess(data)),
+      (failure) => emit(BotError(failure)),
+      (data) => emit(BotSuccess(data)),
     );
   }
 
-  Future<void> sendMessage(message) async {
+  Future<void> sendMessage(MessageEntity message) async {
     emit(const BotLoading());
     final result = await sendMessageUseCase(message);
     result.fold(
-          (failure) => emit(BotError(failure)),
-          (data) => emit(BotSuccess(data)),
+      (failure) => emit(BotError(failure)),
+      (data) => emit(BotSuccess(data)),
     );
   }
 
@@ -74,8 +75,8 @@ class BotCubit extends Cubit<BotState> {
     emit(const BotLoading());
     final result = await getAllMessagesUseCase(conversationId);
     result.fold(
-          (failure) => emit(BotError(failure)),
-          (data) => emit(BotListSuccess(data)),
+      (failure) => emit(BotError(failure)),
+      (data) => emit(BotListSuccess(data)),
     );
   }
 }

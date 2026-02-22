@@ -7,6 +7,7 @@ class MessageModel extends MessageEntity {
     required super.conversationId,
     required super.content,
     required super.role,
+    required super.createdAt,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
@@ -15,6 +16,7 @@ class MessageModel extends MessageEntity {
       conversationId: json['conversation_id'] ?? 0,
       content: json['content'] ?? '',
       role: json['role'] ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
     );
   }
 
@@ -24,6 +26,7 @@ class MessageModel extends MessageEntity {
       'conversation_id': conversationId,
       'content': content,
       'role': role,
+      'created_at': createdAt,
     };
   }
 }

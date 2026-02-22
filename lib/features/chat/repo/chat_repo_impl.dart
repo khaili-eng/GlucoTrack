@@ -16,92 +16,91 @@ class BotRepositoryImpl implements BotRepository {
 
   @override
   Future<Either<Failure, ConversationEntity>> createConversation(int userId) async {
-    try {
-      final response = await apiService.createConversation(userId);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return Right(ConversationModel.fromJson(response.data));
-      }
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    final result = await apiService.createConversation({'user_id': userId});
+    if (result.success && result.data != null) {
+      return Right(ConversationModel.fromJson(result.data));
+    } else {
+      return Left(_mapFailure(result));
     }
   }
 
   @override
   Future<Either<Failure, ConversationEntity>> getConversation(int id) async {
-    try {
-      final response = await apiService.getConversation(id);
-      if (response.statusCode == 200) {
-        return Right(ConversationModel.fromJson(response.data));
-      }
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    final result = await apiService.getConversation(id);
+    if (result.success && result.data != null) {
+      return Right(ConversationModel.fromJson(result.data));
+    } else {
+      return Left(_mapFailure(result));
     }
   }
 
   @override
   Future<Either<Failure, List<ConversationEntity>>> getAllConversations(int userId) async {
-    try {
-      final response = await apiService.getAllConversations(userId);
-      if (response.statusCode == 200) {
-        final list = (response.data as List)
-            .map((e) => ConversationModel.fromJson(e))
-            .toList();
-        return Right(list);
-      }
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    final result = await apiService.getAllConversations(userId);
+    if (result.success && result.data != null) {
+      final list = (result.data as List)
+          .map((e) => ConversationModel.fromJson(e))
+          .toList();
+      return Right(list);
+    } else {
+      return Left(_mapFailure(result));
     }
   }
 
   @override
   Future<Either<Failure, bool>> deleteConversation(int id) async {
-    try {
-      final response = await apiService.deleteConversation(id);
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        return const Right(true);
-      }
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    final result = await apiService.deleteConversation(id);
+    if (result.success) {
+      return const Right(true);
+    } else {
+      return Left(_mapFailure(result));
     }
   }
 
   @override
   Future<Either<Failure, MessageEntity>> sendMessage(MessageEntity message) async {
-    try {
-      final response = await apiService.createMessage(
-        MessageModel(
-          id: message.id,
-          conversationId: message.conversationId,
-          content: message.content,
-          role: message.role,
-        ).toJson(),
-      );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return Right(MessageModel.fromJson(response.data));
-      }
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    final result = await apiService.createMessage(
+      MessageModel(
+        id: message.id,
+        conversationId: message.conversationId,
+        content: message.content,
+        role: message.role,
+        createdAt: message.createdAt,
+      ).toJson(),
+    );
+    if (result.success && result.data != null) {
+      return Right(MessageModel.fromJson(result.data));
+    } else {
+      return Left(_mapFailure(result));
     }
   }
 
   @override
   Future<Either<Failure, List<MessageEntity>>> getAllMessages(int conversationId) async {
-    try {
-      final response = await apiService.getMessages(conversationId);
-      if (response.statusCode == 200) {
-        final list = (response.data as List)
-            .map((e) => MessageModel.fromJson(e))
-            .toList();
-        return Right(list);
-      }
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    final result = await apiService.getMessages(conversationId);
+    if (result.success && result.data != null) {
+      final list = (result.data as List)
+          .map((e) => MessageModel.fromJson(e))
+          .toList();
+      return Right(list);
+    } else {
+      return Left(_mapFailure(result));
+    }
+  }
+
+  Failure _mapFailure(dynamic result) {
+    final code = result.statusCode;
+    final message = result.message ?? 'Unknown error';
+    if (code == 401) {
+      return UnauthorizedFailure(message: message, code: code);
+    } else if (code == 422) {
+      return ValidationFailure(message: message, code: code);
+    } else if (code == 500) {
+      return ServerFailure(message: message, code: code);
+    } else if (code == null) {
+      return NetworkFailure(message: message);
+    } else {
+      return UnknownFailure(message: message);
     }
   }
 }

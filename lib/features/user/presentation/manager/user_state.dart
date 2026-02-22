@@ -54,3 +54,10 @@ class UserError extends UserState {
   @override
   List<Object?> get props => [failure];
 }
+
+class UserDeleteSuccess extends UserState {
+  const UserDeleteSuccess();
+
+  @override
+  List<Object?> get props => [];
+}

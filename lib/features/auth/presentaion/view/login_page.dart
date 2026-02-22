@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
-import 'package:untitled10/core/network/api_service.dart';
-import 'package:untitled10/features/auth/domain/usecase/forgot_password_usecase.dart';
-import 'package:untitled10/features/auth/domain/usecase/login_usecase.dart';
-import 'package:untitled10/features/auth/domain/usecase/reset_password_usecase.dart';
-import 'package:untitled10/features/auth/domain/usecase/verify_usecase.dart';
-import 'package:untitled10/features/auth/repo/auth_repo.dart';
-import 'package:untitled10/features/auth/repo/auth_repo_impl.dart';
 
 import '../../../../core/color/app_color.dart';
 

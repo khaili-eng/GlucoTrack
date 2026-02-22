@@ -1,14 +1,21 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled10/core/color/app_color.dart';
 import 'package:untitled10/core/localization/locale_cubit.dart';
+import 'package:untitled10/core/network/api_service.dart';
+import 'package:untitled10/features/chat/domain/entity/message_entity.dart';
+import 'package:untitled10/features/chat/domain/usecase/create_conversation_usecase.dart';
+import 'package:untitled10/features/chat/domain/usecase/delete_conversation_usecase.dart';
+import 'package:untitled10/features/chat/domain/usecase/get_allconversation_usecase.dart';
+import 'package:untitled10/features/chat/domain/usecase/get_allmessage_usecase.dart';
+import 'package:untitled10/features/chat/domain/usecase/get_conversation_usecase.dart';
+import 'package:untitled10/features/chat/domain/usecase/send_message_usecase.dart';
 import 'package:untitled10/features/chat/presentation/widgets/chat_empty_state.dart';
+import 'package:untitled10/features/chat/repo/chat_repo_impl.dart';
 
 import '../manager/chat_cubit.dart';
 import '../manager/chat_state.dart';
-import '../widgets/bubble_typing_indicator.dart';
 import '../widgets/chat_drawer.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/message_input.dart';
@@ -42,7 +49,14 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ChatCubit(),
+      create: (_) => BotCubit(
+        createConversationUseCase: CreateConversationUseCase(BotRepositoryImpl(ApiService())),
+        getConversationUseCase: GetConversationUseCase(BotRepositoryImpl(ApiService())),
+        getAllConversationsUseCase:GetAllConversationUseCase(BotRepositoryImpl(ApiService())),
+        deleteConversationUseCase: DeleteConversationUseCase(BotRepositoryImpl(ApiService())),
+        sendMessageUseCase:SendMessageUseCase(BotRepositoryImpl(ApiService())),
+        getAllMessagesUseCase: GetAllMessageUseCase(BotRepositoryImpl(ApiService())),
+      ),
       child: Scaffold(
         backgroundColor: AppColor.backgroundNeutral,
         resizeToAvoidBottomInset: true,
@@ -51,10 +65,10 @@ class _ChatPageState extends State<ChatPage> {
           backgroundColor: AppColor.backgroundNeutral,
           elevation: 0,
           titleSpacing: 0,
-          title: BlocBuilder<ChatCubit, ChatState>(
-            buildWhen: (previous, current) =>
-            previous.isBotTyping != current.isBotTyping,
+          title: BlocBuilder<BotCubit, BotState>(
+            buildWhen: (previous, current) => false, // customize as needed
             builder: (context, state) {
+              // You may need to cast state to your custom state to access isBotTyping, messages, etc.
               return Row(
                 children: [
                   Stack(
@@ -91,15 +105,7 @@ class _ChatPageState extends State<ChatPage> {
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600),
                       ),
-                      Text(
-                        state.isBotTyping ? "يكتب الآن..." : "متصل",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: state.isBotTyping
-                              ? Colors.orange
-                              : AppColor.positive,
-                        ),
-                      ),
+                    
                     ],
                   ),
                 ],
@@ -108,64 +114,61 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ),
         body: SafeArea(
-          child: BlocListener<ChatCubit, ChatState>(
-            listenWhen: (previous, current) =>
-            previous.messages.length !=
-                current.messages.length,
+          child: BlocListener<BotCubit, BotState>(
+            listenWhen: (previous, current) => false, // customize as needed
             listener: (context, state) {
               _scrollToBottom();
             },
             child: Column(
               children: [
                 Expanded(
-                  child: BlocBuilder<ChatCubit, ChatState>(
+                  child: BlocBuilder<BotCubit, BotState>(
                     builder: (context, state) {
-
-                      if (state.messages.isEmpty) {
-                        return const ChatEmptyState();
+                      // Example: show loading, error, or messages
+                      if (state is BotLoading) {
+                        return const Center(child: CircularProgressIndicator());
                       }
-
-                      return ListView.builder(
-                        controller: _scrollController,
-                        padding:
-                        const EdgeInsets.all(16),
-                        reverse: true,
-                        itemCount:
-                        state.messages.length +
-                            (state.isBotTyping ? 1 : 0),
-                        itemBuilder: (context, index) {
-
-                          if (state.isBotTyping &&
-                              index == 0) {
-                            return  BotTypingBubble ();
-                          }
-
-                          final message =
-                          state.messages[
-                          state.messages.length -
-                              1 -
-                              index];
-
-                          return MessageBubble(
-                            message: message,
-                            isUser: message.isMe,
-                          );
-                        },
-                      );
+                      if (state is BotError) {
+                        return Center(child: Text(state.failure.message));
+                      }
+                      if (state is BotListSuccess) {
+                        final messages = state.data;
+                        if (messages.isEmpty) {
+                          return const ChatEmptyState();
+                        }
+                        return ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16),
+                          reverse: true,
+                          itemCount: messages.length,
+                          itemBuilder: (context, index) {
+                            final message = messages[messages.length - 1 - index];
+                            return MessageBubble(
+                              message: message,
+                              isUser: message.role == 'user',
+                            );
+                          },
+                        );
+                      }
+                      return const ChatEmptyState();
                     },
                   ),
                 ),
-                BlocBuilder<ChatCubit, ChatState>(
-                  buildWhen: (previous, current) =>
-                  previous.isBotTyping !=
-                      current.isBotTyping,
+                BlocBuilder<BotCubit, BotState>(
                   builder: (context, state) {
+                    // Enable input unless loading
+                    final enabled = state is! BotLoading;
                     return MessageInput(
-                      enabled: !state.isBotTyping,
+                      enabled: enabled,
                       onSend: (text) {
-                        context
-                            .read<ChatCubit>()
-                            .sendMessage(text);
+                        final message = MessageEntity(
+                          id: 0,
+                          conversationId: 0,
+                          content: text,
+                          role: 'user',
+                          createdAt: DateTime.now().toIso8601String(),
+                        );
+                        context.read<BotCubit>().sendMessage(message);
                       },
                     );
                   },

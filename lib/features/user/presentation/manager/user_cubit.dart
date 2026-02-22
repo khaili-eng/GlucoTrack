@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:untitled10/features/user/domain/create_user_parametres.dart';
+import '../../../../core/entity/auth_entity.dart';
 import '../../domain/usecase/create_user_usecase.dart';
 import '../../domain/usecase/delete_user_usecase.dart';
 import '../../domain/usecase/get_user_usecase.dart';
@@ -19,14 +21,16 @@ class UserCubit extends Cubit<UserState> {
     required this.deleteUserUseCase,
   }) : super(const UserInitial());
 
-  Future<void> createUser(user, {required String name}) async {
-    emit(const UserLoading());
-    final result = await createUserUseCase(user);
-    result.fold(
-          (failure) => emit(UserError(failure)),
-          (data) => emit(UserSuccess(data)),
-    );
-  }
+  Future<void> createUser(CreateUserParams params) async {
+  emit(const UserLoading());
+
+  final result = await createUserUseCase(params);
+
+  result.fold(
+    (failure) => emit(UserError(failure)),
+    (data) => emit(UserSuccess(data)),
+  );
+}
 
   Future<void> getUser(int id) async {
     emit(const UserLoading());
@@ -37,7 +41,7 @@ class UserCubit extends Cubit<UserState> {
     );
   }
 
-  Future<void> updateUser(user) async {
+  Future<void> updateUser(UserEntity user) async {
     emit(const UserLoading());
     final result = await updateUserUseCase(user);
     result.fold(
@@ -51,7 +55,7 @@ class UserCubit extends Cubit<UserState> {
     final result = await deleteUserUseCase(id);
     result.fold(
           (failure) => emit(UserError(failure)),
-          (data) => emit(UserSuccess(data)),
+          (success) => emit(const UserDeleteSuccess()),
     );
   }
 }

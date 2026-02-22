@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/utils/time_formater.dart';
-import '../../data/conversation_model.dart';
+import '../../data/message_model.dart';
 import 'avatar_icon.dart';
-
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
   final bool isUser;
@@ -12,13 +11,11 @@ class MessageBubble extends StatelessWidget {
   const MessageBubble({
     super.key,
     required this.message,
-    required this.isUser
+    required this.isUser,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isUser = message.sender == MessageSender.user;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       child: Row(
@@ -50,7 +47,7 @@ class MessageBubble extends StatelessWidget {
                 isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Text(
-                    message.message,
+                    message.content,
                     style: TextStyle(
                       color: isUser ? Colors.white : Colors.black87,
                       fontSize: 15.sp,
@@ -59,7 +56,17 @@ class MessageBubble extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    TimeFormatter.format(message.createdAt),
+                    (() {
+                      if (message.createdAt.isNotEmpty) {
+                        try {
+                          final dt = DateTime.parse(message.createdAt);
+                          return TimeFormatter.format(dt);
+                        } catch (_) {
+                          return '';
+                        }
+                      }
+                      return '';
+                    })(),
                     style: TextStyle(
                       fontSize: 10.sp,
                       color: isUser

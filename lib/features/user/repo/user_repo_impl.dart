@@ -1,43 +1,42 @@
+import 'package:untitled10/features/user/domain/create_user_parametres.dart';
 import 'package:untitled10/features/user/repo/user_repo.dart';
 import '../../../../core/utils/either.dart';
 import '../../../core/entity/auth_entity.dart';
 import '../../../core/errors/failure.dart';
-import '../../../core/network/api_service.dart';
-import '../data/models/user_model.dart';
+import '../data/datasource/user_remote_datasource.dart';
+
 
 
 class UserRepositoryImpl implements UserRepository {
-  final ApiService apiService;
+  final UserRemoteDataSource remoteDataSource;
 
-  UserRepositoryImpl(this.apiService);
+  UserRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, UserEntity>> createUser(UserEntity user) async {
-    try {
-      final response = await apiService.createUser(
-        UserModel(id: user.id, name: user.name, email: user.email).toJson(),
-      );
+ Future<Either<Failure, UserEntity>> createUser(
+    CreateUserParams params) async {
+  try {
+    final response = await remoteDataSource.createUser(params);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return Right(UserModel.fromJson(response.data));
-      }
-
-      return const Left(ServerFailure(message: 'Server Error'));
-    } catch (_) {
-      return const Left(NetworkFailure(message: 'Network Error'));
+    if (response.success && response.data != null) {
+      return Right(response.data!);
     }
-  }
 
+    return Left(ServerFailure(message: response.message ?? 'Server Error'));
+  } catch (_) {
+    return const Left(NetworkFailure(message: 'Network Error'));
+  }
+}
   @override
   Future<Either<Failure, UserEntity>> getUser(int id) async {
     try {
-      final response = await apiService.getUser(id);
+      final response = await remoteDataSource.getUser(id);
 
-      if (response.statusCode == 200) {
-        return Right(UserModel.fromJson(response.data));
+      if (response.success && response.data != null) {
+        return Right(response.data!);
       }
 
-      return const Left(ServerFailure(message: 'Server Error'));
+      return Left(ServerFailure(message: response.message ?? 'Server Error'));
     } catch (_) {
       return const Left(NetworkFailure(message: 'Network Error'));
     }
@@ -46,16 +45,13 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<Either<Failure, UserEntity>> updateUser(UserEntity user) async {
     try {
-      final response = await apiService.updateUser(
-        user.id,
-        UserModel(id: user.id, name: user.name, email: user.email).toJson(),
-      );
+      final response = await remoteDataSource.updateUser(user);
 
-      if (response.statusCode == 200) {
-        return Right(UserModel.fromJson(response.data));
+      if (response.success && response.data != null) {
+        return Right(response.data!);
       }
 
-      return const Left(ServerFailure(message: 'Server Error'));
+      return Left(ServerFailure(message: response.message ?? 'Server Error'));
     } catch (_) {
       return const Left(NetworkFailure(message: 'Network Error'));
     }
@@ -64,13 +60,13 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<Either<Failure, bool>> deleteUser(int id) async {
     try {
-      final response = await apiService.deleteUser(id);
+      final response = await remoteDataSource.deleteUser(id);
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
+      if (response.success) {
         return const Right(true);
       }
 
-      return const Left(ServerFailure(message: 'Server Error'));
+      return Left(ServerFailure(message: response.message ?? 'Server Error'));
     } catch (_) {
       return const Left(NetworkFailure(message: 'Network Error'));
     }

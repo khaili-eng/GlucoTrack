@@ -94,27 +94,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToNextScreen() {
 
-    final bool isAuthenticated = false;
     final bool isFirstTime = true;
 
-    if (isAuthenticated) {
-      // Authenticated users go to glucose dashboard
-      Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pushReplacementNamed('/glucose-dashboard');
-    } else if (isFirstTime) {
+    if (isFirstTime) {
       // New users see onboarding flow
       Navigator.of(
         context,
         rootNavigator: true,
       ).pushReplacementNamed(AppRoutes.login);
-    } else {
-      // Returning non-authenticated users go to login
-      Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pushReplacementNamed('/user-login');
     }
   }
 

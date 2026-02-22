@@ -5,21 +5,19 @@ import '../../repo/chat_repo.dart';
 
 
 class DeleteConversationParams {
-  final String conversationId;
+  final int conversationId;
 
   const DeleteConversationParams(this.conversationId);
 }
 
 class DeleteConversationUseCase
-    extends BaseUseCase<void, DeleteConversationParams> {
+    extends BaseUseCase<bool, DeleteConversationParams> {
   final BotRepository repository;
 
   DeleteConversationUseCase(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(
-      DeleteConversationParams params,
-      ) {
+  Future<Either<Failure, bool>> call(DeleteConversationParams params) {
     return repository.deleteConversation(params.conversationId);
   }
 }

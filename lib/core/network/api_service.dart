@@ -1,10 +1,10 @@
 
 
 import 'package:dio/dio.dart';
-import 'package:untitled10/core/api/end_point.dart';
 import '../../features/auth/data/models/response_model.dart';
 import '../utils/source_storage_service.dart';
 import 'dio_client.dart';
+import 'end_point.dart';
 
 class ApiService {
   final Dio _dio = DioClient().dio;

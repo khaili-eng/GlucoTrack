@@ -12,6 +12,8 @@ import '../../../../core/localization/locale_cubit.dart';
 import '../../data/models/on_boarding_model.dart';
 
 class GetStartedPage extends StatefulWidget {
+  const GetStartedPage({super.key});
+
   @override
   State<GetStartedPage> createState() => _GetStartedPageState();
 }
@@ -94,7 +96,7 @@ class _GetStartedPageState extends State<GetStartedPage> {
                 }else{  boardController.nextPage(
                     duration: Duration(milliseconds: 750),
                     curve: Curves.easeInBack);
-                };
+                }
               },
 
             child: Icon(Icons.arrow_forward),)
@@ -109,16 +111,16 @@ class _GetStartedPageState extends State<GetStartedPage> {
   Widget buildBoardingItem(OnBoardingModel model)=> Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Flexible(child: Lottie.asset('${model.lottie}')),
+      Flexible(child: Lottie.asset(model.lottie)),
       SizedBox(height: 30.h,),
-      Text('${model.title}',
+      Text(model.title,
          style: TextStyle(
          fontSize: 24.sp,
          fontWeight: FontWeight.bold,
          color: AppColor.info,
       ),),
       SizedBox(height: 14.h,),
-      Text('${model.body}',style: TextStyle(
+      Text(model.body,style: TextStyle(
          fontSize: 14.sp,
          color: AppColor.textNeutral,
      ),),

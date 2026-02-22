@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:untitled10/core/network/api_service.dart';
+
+import 'package:untitled10/features/user/domain/create_user_parametres.dart';
 import 'package:untitled10/features/user/domain/usecase/create_user_usecase.dart';
 import 'package:untitled10/features/user/domain/usecase/delete_user_usecase.dart';
 import 'package:untitled10/features/user/domain/usecase/get_user_usecase.dart';
@@ -14,8 +15,6 @@ import '../../../../core/localization/locale_cubit.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_feild.dart';
-import '../manager/auth_cubit.dart';
-import '../manager/auth_state.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -27,13 +26,7 @@ class RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => UserCubit(
-          createUserUseCase: CreateUserUseCase(UserRepositoryImpl(ApiService())),
-          getUserUseCase: GetUserUseCase(UserRepositoryImpl(ApiService())),
-          updateUserUseCase: UpdateUserUseCase(UserRepositoryImpl(ApiService())),
-          deleteUserUseCase: DeleteUserUseCase(UserRepositoryImpl(ApiService()))),
-      child: Scaffold(
+    return  Scaffold(
         backgroundColor: AppColor.backgroundNeutral,
         body: SafeArea(
           child: SingleChildScrollView(
@@ -113,9 +106,11 @@ class RegisterPage extends StatelessWidget {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             context.read<UserCubit>().createUser(
-                              name: nameController.text.trim(),
-                              email: emailController.text.trim(),
-                              password: passwordController.text.trim(),
+                                   CreateUserParams(
+                            name: nameController.text.trim(),
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
+),
                             );
                           }
                         },
@@ -127,7 +122,7 @@ class RegisterPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
+
     );
   }
 }
