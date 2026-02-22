@@ -28,7 +28,7 @@ class AppRoutes{
     home:(context)=> HomePage(),
     started:(context)=>GetStartedPage(),
     editProfile:(context)=>EditeProfilePage(),
-    archiveDetailsPage:(context)=>ArchiveDetailsPage(),
+   // archiveDetailsPage:(context)=>ArchiveDetailsPage(),
     splashScreen:(context)=>SplashScreen(),
     aboutApp:(context)=>AboutAppPage(),
   
