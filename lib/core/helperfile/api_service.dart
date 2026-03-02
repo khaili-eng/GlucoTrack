@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import '../../features/auth/data/models/response_model.dart';
 import '../utils/source_storage_service.dart';
 import 'dio_client.dart';
-import 'end_point.dart';
+import '../api/end_point.dart';
 
 class ApiService {
   final Dio _dio = DioClient().dio;
@@ -46,59 +46,7 @@ class ApiService {
 
     return e.response?.data?.toString() ?? "Network error";
   }
-  Future<ResponseModel<Map<String, dynamic>>> login({
-    required String email,
-    required String password,
-  }) async {
-    final formData = FormData.fromMap({
-      "email": email,
-      "password": password,
-      "grant_type": "password",
-    });
 
-    final response = await _dio.post(
-      ApiEndpoints.login,
-      data: formData,
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-      ),
-    );
-
-    final token = response.data["access_token"];
-    if (token != null) {
-      await SecureStorageService.saveToken(token);
-    }
-
-    return ResponseModel.success(response.data,
-        statusCode: response.statusCode);
-  }
-
-  // ================= USER =================
-
-  Future<ResponseModel<dynamic>> createUser(Map<String, dynamic> body) =>
-      _handleRequest(
-        _dio.post(ApiEndpoints.user, data: body),
-            (data) => data,
-      );
-
-  Future<ResponseModel<dynamic>> getUser(int id) =>
-      _handleRequest(
-        _dio.get(ApiEndpoints.userById(id)),
-            (data) => data,
-      );
-
-  Future<ResponseModel<dynamic>> updateUser(
-      int id, Map<String, dynamic> body) =>
-      _handleRequest(
-        _dio.put(ApiEndpoints.userById(id), data: body),
-            (data) => data,
-      );
-
-  Future<ResponseModel<dynamic>> deleteUser(int id) =>
-      _handleRequest(
-        _dio.delete(ApiEndpoints.userById(id)),
-            (data) => data,
-      );
 
   // ================= BOT =================
 

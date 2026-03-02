@@ -50,7 +50,7 @@ class _OtpPageState extends State<OtpPage> {
         if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.failure.message),
+              content: Text(state.message),
               backgroundColor: Colors.red,
             ),
           );
@@ -139,7 +139,7 @@ class _OtpPageState extends State<OtpPage> {
                                       onPressed: () {
                                         if (_formKey.currentState!.validate()) {
                                           final otp = controllers.map((e) => e.text).join();
-                                          cubit.verifyOtp(widget.email!, otp);
+                                        //  cubit.verifyOtp(widget.email!, otp);
                                         }
 
                                       },

@@ -40,7 +40,7 @@ class ResetPasswordPage extends StatelessWidget {
       if (state is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(state.failure.message),
+            content: Text(state.message),
             backgroundColor: Colors.red,
           ),
         );
@@ -119,11 +119,9 @@ class ResetPasswordPage extends StatelessWidget {
                           textColor: AppColor.textNeutral,
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              context
-                                  .read<AuthCubit>()
-                                  .forgotPassword(
-                                emailController.text.trim(),
-                              );
+                             // context.read<AuthCubit>().forgotPassword(
+                               // emailController.text.trim(),
+                              //);
                             }
                           },
                         ),

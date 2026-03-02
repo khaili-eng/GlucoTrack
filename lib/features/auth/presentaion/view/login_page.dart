@@ -82,6 +82,28 @@ class LoginPage extends StatelessWidget {
                             return null;
                           },
                         ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                  context, AppRoutes.resetPassword);
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size(0, 30.h),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                             context.read<LocaleCubit>().translate('forgot_password'),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                                color: AppColor.info,
+                              ),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 24.h),
                         BlocConsumer<AuthCubit, AuthState>(
                           listener: (context, state) {
@@ -91,8 +113,23 @@ class LoginPage extends StatelessWidget {
                             if (state is AuthError) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(state.failure.message),
-                                  backgroundColor: AppColor.negative,
+                                  padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                                  margin: EdgeInsets.only(bottom: 20,right: 10,left: 10),
+                                  behavior: SnackBarBehavior.floating,
+                                  clipBehavior: Clip.none,
+                                  elevation: 10,
+                                  content: Row(
+                                    children: [
+                                      Text(state.message,
+                                        style: TextStyle(
+                                            color: AppColor.textNeutral,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16.sp),),
+                                      SizedBox(width: 8.w,),
+                                      Icon(Icons.error,color: AppColor.textNeutral,)
+                                    ],
+                                  ),
+                                  backgroundColor: AppColor.warning,
                                 ),
                               );
                             }
@@ -108,15 +145,41 @@ class LoginPage extends StatelessWidget {
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
                                   context.read<AuthCubit>().login(
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim(),
-                                  );
+                                      email: emailController.text.trim(),
+                                      password:passwordController.text.trim());
                                 }
                               },
                             );
                           },
                         ),
-                      ],
+                        SizedBox(height: 20.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              context.read<LocaleCubit>().translate('dont_have_account'),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: AppColor.textNeutral,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, AppRoutes.register);
+                              },
+                              child: Text(
+                                " ${context.read<LocaleCubit>().translate('register')}",
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.info,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                          ],
                     ),
                   ),
                 ),

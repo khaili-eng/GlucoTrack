@@ -1,63 +1,31 @@
 import 'package:equatable/equatable.dart';
-import '../../../../core/errors/failure.dart';
+import 'package:untitled10/features/auth/data/models/user_model.dart';
 
-abstract class UserState extends Equatable {
-  const UserState();
-
+abstract class UserState extends Equatable{
   @override
   List<Object?> get props => [];
 }
+class UserInitial extends UserState{
 
-class UserInitial extends UserState {
-  const UserInitial();
 }
-
 class UserLoading extends UserState {
-  const UserLoading();
+
 }
-
-class UserSuccess<T> extends UserState {
-  final T data;
-
-  const UserSuccess(this.data);
-
-  UserSuccess<T> copyWith({T? data}) {
-    return UserSuccess<T>(data ?? this.data);
-  }
-
+class UserLoaded extends UserState{
+  final UserModel userModel;
+  UserLoaded(this.userModel);
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [userModel];
 }
-
-class UserListSuccess<T> extends UserState {
-  final List<T> data;
-
-  const UserListSuccess(this.data);
-
-  UserListSuccess<T> copyWith({List<T>? data}) {
-    return UserListSuccess<T>(data ?? this.data);
-  }
-
+class UserSuccess extends UserState{
+  final String message;
+  UserSuccess(this.message);
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [message];
 }
-
-class UserError extends UserState {
-  final Failure failure;
-
-  const UserError(this.failure);
-
-  UserError copyWith({Failure? failure}) {
-    return UserError(failure ?? this.failure);
-  }
-
+class UserError extends UserState{
+  final String message;
+  UserError(this.message);
   @override
-  List<Object?> get props => [failure];
-}
-
-class UserDeleteSuccess extends UserState {
-  const UserDeleteSuccess();
-
-  @override
-  List<Object?> get props => [];
+  List<Object?> get props => [message];
 }

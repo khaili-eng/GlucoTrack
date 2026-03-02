@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 
-import 'package:untitled10/features/user/domain/create_user_parametres.dart';
-import 'package:untitled10/features/user/domain/usecase/create_user_usecase.dart';
-import 'package:untitled10/features/user/domain/usecase/delete_user_usecase.dart';
-import 'package:untitled10/features/user/domain/usecase/get_user_usecase.dart';
-import 'package:untitled10/features/user/domain/usecase/update_user_usecase.dart';
+
 import 'package:untitled10/features/user/presentation/manager/user_cubit.dart';
 import 'package:untitled10/features/user/presentation/manager/user_state.dart';
 import 'package:untitled10/features/user/repo/user_repo_impl.dart';
@@ -35,6 +32,11 @@ class RegisterPage extends StatelessWidget {
               key: _formKey,
               child: Column(
                 children: [
+                  Lottie.asset(
+                    'assets/lottie/Welcome Animation.json',
+                    height: 300.h,
+                  ),
+                  SizedBox(height: 20.h),
                   Text(
                     context.read<LocaleCubit>().translate('register'),
                     style: TextStyle(
@@ -89,8 +91,23 @@ class RegisterPage extends StatelessWidget {
                       if (state is UserError) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(state.failure.message),
-                            backgroundColor: AppColor.negative,
+                            padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                            margin: EdgeInsets.only(bottom: 20,right: 10,left: 10),
+                            behavior: SnackBarBehavior.floating,
+                            clipBehavior: Clip.none,
+                            elevation: 10,
+                            content: Row(
+                              children: [
+                                Text(state.message,
+                                  style: TextStyle(
+                                      color: AppColor.textNeutral,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16.sp),),
+                                SizedBox(width: 8.w,),
+                                Icon(Icons.error,color: AppColor.textNeutral,)
+                              ],
+                            ),
+                            backgroundColor: AppColor.warning,
                           ),
                         );
                       }
@@ -106,17 +123,17 @@ class RegisterPage extends StatelessWidget {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             context.read<UserCubit>().createUser(
-                                   CreateUserParams(
-                            name: nameController.text.trim(),
-                            email: emailController.text.trim(),
-                            password: passwordController.text.trim(),
-),
-                            );
+                                name: nameController.text.trim(),
+                                email: emailController.text.trim(),
+                                password: passwordController.text.trim());
+
                           }
                         },
                       );
                     },
                   ),
+
+
                 ],
               ),
             ),

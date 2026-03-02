@@ -2,6 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import '../utils/source_storage_service.dart';
 import 'auth_interceptor.dart';
 
 class DioClient {
@@ -35,6 +36,17 @@ class DioClient {
         requestBody: true,
         responseBody: true,
         error: true,
+      ),
+    );
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await SecureStorageService.getToken();
+          if (token != null) {
+            options.headers["Authorization"] = "Bearer $token";
+          }
+          return handler.next(options);
+        },
       ),
     );
 

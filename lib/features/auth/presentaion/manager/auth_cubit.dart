@@ -1,57 +1,38 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:untitled10/core/api/api_error.dart';
+import 'package:untitled10/features/auth/presentaion/manager/auth_state.dart';
+import 'package:untitled10/features/auth/repo/auth_repo.dart';
 
-import '../../domain/usecase/forgot_password_usecase.dart';
-import '../../domain/usecase/login_usecase.dart';
-import '../../domain/usecase/reset_password_usecase.dart';
-import '../../domain/usecase/verify_usecase.dart';
-import 'auth_state.dart';
+class AuthCubit extends Cubit<AuthState>{
+  final AuthRepository authRepository;
+  AuthCubit(this.authRepository):super(AuthInitial());
+  Future<void>login({required String email,required String password})async{
+    emit(AuthLoading());
+    try{
+      final user = await authRepository.login(email, password);
+      if(user !=null){
 
-class AuthCubit extends Cubit<AuthState> {
-  final LoginUseCase loginUseCase;
-  final ForgotPasswordUseCase forgotPasswordUseCase;
-  final VerifyOtpUseCase verifyOtpUseCase;
-  final ResetPasswordUseCase resetPasswordUseCase;
-
-  AuthCubit({
-    required this.loginUseCase,
-    required this.forgotPasswordUseCase,
-    required this.verifyOtpUseCase,
-    required this.resetPasswordUseCase,
-  }) : super(const AuthInitial());
-
-  Future<void> login({required String email, required String password}) async {
-    emit(const AuthLoading());
-    final result = await loginUseCase(LoginParams(email: email, password: password));
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (authEntity) => emit(AuthSuccess(authEntity)),
-    );
+        emit(AuthSuccess("Login successful"));
+    }
+    }catch(e){
+      String errMsg = "Error in Login";
+      if(e is ApiError){
+        errMsg = e.message;
+      }
+      emit(AuthError(errMsg));
+    }
   }
-
-  Future<void> forgotPassword(String email) async {
-    emit(const AuthLoading());
-    final result = await forgotPasswordUseCase(email);
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (message) => emit(AuthSuccess(message)),
-    );
-  }
-
-  Future<void> verifyOtp(String email, String otp) async {
-    emit(const AuthLoading());
-    final result = await verifyOtpUseCase(VerifyOtpParams(email: email, otp: otp));
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (message) => emit(AuthSuccess(message)),
-    );
-  }
-
-  Future<void> resetPassword(String email, String password) async {
-    emit(const AuthLoading());
-    final result = await resetPasswordUseCase(ResetPasswordParams(email: email, newPassword: password));
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (message) => emit(AuthSuccess(message)),
-    );
+  Future<void>logout()async{
+    emit(AuthLoading());
+    try{
+      final user = await authRepository.logout();
+      emit(AuthSuccess("Logout Successfully"));
+    }catch(e){
+      String errMsg = "Error in Logout";
+      if(e is ApiError){
+        errMsg = e.message;
+      }
+      emit(AuthError(errMsg));
+    }
   }
 }

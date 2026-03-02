@@ -1,61 +1,65 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:untitled10/features/user/domain/create_user_parametres.dart';
-import '../../../../core/entity/auth_entity.dart';
-import '../../domain/usecase/create_user_usecase.dart';
-import '../../domain/usecase/delete_user_usecase.dart';
-import '../../domain/usecase/get_user_usecase.dart';
-import '../../domain/usecase/update_user_usecase.dart';
+import 'package:untitled10/core/api/api_error.dart';
+import 'package:untitled10/features/user/presentation/manager/user_state.dart';
+import 'package:untitled10/features/user/repo/user_repo.dart';
 
-import 'user_state.dart';
+class UserCubit extends Cubit<UserState>{
+  final UserRepository userRepository;
+  UserCubit(this.userRepository):super(UserInitial());
 
-class UserCubit extends Cubit<UserState> {
-  final CreateUserUseCase createUserUseCase;
-  final GetUserUseCase getUserUseCase;
-  final UpdateUserUseCase updateUserUseCase;
-  final DeleteUserUseCase deleteUserUseCase;
-
-  UserCubit({
-    required this.createUserUseCase,
-    required this.getUserUseCase,
-    required this.updateUserUseCase,
-    required this.deleteUserUseCase,
-  }) : super(const UserInitial());
-
-  Future<void> createUser(CreateUserParams params) async {
-  emit(const UserLoading());
-
-  final result = await createUserUseCase(params);
-
-  result.fold(
-    (failure) => emit(UserError(failure)),
-    (data) => emit(UserSuccess(data)),
-  );
+  //function for create user
+Future<void>createUser({required String name,required String email,required String password})async{
+  emit(UserLoading());
+  try{
+final user = await userRepository.createUser(name, email, password);
+if(user!=null){
+  emit(UserSuccess("Register successful"));
+}
+  } catch(e){
+    String errMsg = "Error in Register";
+    if(e is ApiError){
+      errMsg = e.message;
+    }
+emit(UserError(errMsg));
+  }
+}
+//function for get user data
+Future<void>getUser()async{
+  emit(UserLoading());
+  try{
+    final user =await userRepository.getUser();
+    if(user!=null){
+      emit(UserLoaded(user));
+    }else{
+      emit(UserError("User not found"));
+    }
+  }catch(e){
+    String errorMsg ="Error in Profile";
+    if(e is ApiError){
+      errorMsg = e.message;
+    }
+    emit(UserError(errorMsg));
+  }
 }
 
-  Future<void> getUser(int id) async {
-    emit(const UserLoading());
-    final result = await getUserUseCase(id);
-    result.fold(
-          (failure) => emit(UserError(failure)),
-          (data) => emit(UserSuccess(data)),
-    );
+  //function for update user data
+Future<void>updateUser({required String name,required String email,required String password})async{
+  emit(UserLoading());
+  try{
+    final user = await userRepository.updateUser(name, email, password);
+    if(user!=null){
+      emit(UserLoaded(user));
+    }else{
+      emit(UserError("Faild to update profile"));
+    }
+    await getUser();
+    emit(UserSuccess("Profile updated successfully"));
+  }catch(e){
+    String errorMsg ="Error in Update Profile";
+    if(e is ApiError){
+      errorMsg = e.message;
+    }
+    emit(UserError(errorMsg));
   }
-
-  Future<void> updateUser(UserEntity user) async {
-    emit(const UserLoading());
-    final result = await updateUserUseCase(user);
-    result.fold(
-          (failure) => emit(UserError(failure)),
-          (data) => emit(UserSuccess(data)),
-    );
-  }
-
-  Future<void> deleteUser(int id) async {
-    emit(const UserLoading());
-    final result = await deleteUserUseCase(id);
-    result.fold(
-          (failure) => emit(UserError(failure)),
-          (success) => emit(const UserDeleteSuccess()),
-    );
-  }
+}
 }

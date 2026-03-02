@@ -1,15 +1,8 @@
 
-import 'package:untitled10/features/user/domain/create_user_parametres.dart';
-
-import '../../../../core/utils/either.dart';
-import '../../../core/entity/auth_entity.dart';
-import '../../../core/errors/failure.dart';
-
-
+import 'package:untitled10/features/auth/data/models/user_model.dart';
 abstract class UserRepository {
- Future<Either<Failure, UserEntity>> createUser(
-    CreateUserParams params);
-  Future<Either<Failure, UserEntity>> getUser(int id);
-  Future<Either<Failure, UserEntity>> updateUser(UserEntity user);
-  Future<Either<Failure, bool>> deleteUser(int id);
+Future<UserModel?>createUser(String name,String email,String password);
+  Future<UserModel?> getUser();
+  Future<UserModel?> updateUser(String name,String email,String password);
+
 }
